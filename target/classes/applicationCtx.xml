@@ -1,27 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
- <bean id="dto" class="com.cjon.bank.dto.BankDTO" scope="prototype"/>
- <bean id="template" class="com.cjon.bank.util.DBTemplate" scope="prototype"/>
- 
- <bean id="dao" class="com.cjon.bank.dao.BankDAO"  >
-  <constructor-arg>
-   <ref bean="template"/>
-  </constructor-arg>
- </bean>
-  
- <!-- bankservice의 빈객체를 생성하는데 property방식으로 객체 생성 -->
- <bean id="bankService" class="com.cjon.bank.service.BankService" scope="prototype">
-  <property name="dao">
-   <ref bean="dao"/>
-  </property>
-  <property name="template">
-   <ref bean="template"/>
-  </property>
- </bean>
-
-
-
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="dto" class="com.cjon.bank.dto.BankDTO" scope="prototype"/> <!-- scope="prototype" 이거는 계속 새 객체 만드는거  -->
+	<bean id="template" class="com.cjon.bank.util.DBTemplate" scope="prototype"/>
+	<bean id="dao" class="com.cjon.bank.dao.BankDAO"/>
+	
+	<bean id="service" class="com.cjon.bank.service.BankService" scope="prototype">
+		<property name="dao">
+			<ref bean ="dao"/>
+		</property>
+		<property name="template">
+			<ref bean ="template"/>
+		</property>
+	</bean>
 </beans>

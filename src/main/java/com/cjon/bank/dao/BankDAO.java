@@ -1,134 +1,133 @@
 package com.cjon.bank.dao;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import com.cjon.bank.dto.BankDTO;
 import com.cjon.bank.util.DBTemplate;
 
 public class BankDAO {
 
-	
 	private DBTemplate template;
+
+	public BankDAO(){ }
 	
-	public BankDAO(){
-		
+	public BankDAO(DBTemplate template) {
+		this.template = template;
 	}
-	public BankDAO(DBTemplate template){
+
+	public DBTemplate getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(DBTemplate template) {
 		this.template = template;
 	}
 
 	public BankDTO update(BankDTO dto) {
 
-		//data baseo 처리를 해야 해요!!
-		//일반 JDBC처리 코드가 나오면 되겠죵!
-		
+		// Database 처리를 해야 해요!!
+		// 일반 JDBC 처리코드가 나오면 되겠죠
 		Connection con = template.getCon();
 		PreparedStatement pstmt = null;
-		ResultSet rs=null;
-		
+		ResultSet rs = null;
+
 		try {
-			
-	
-			String sql = "update bank set balance = balance + ? where userid =? ";
+			// 1. JDBC Driver Loading(Mysql용)
+			// 3. 사용할 SQL을 작성하고 PreparedStatement를 생성
+			String sql = "update bank set balance = balance+? where userid=?";
 			pstmt = con.prepareStatement(sql);
-			pstmt.setInt(1, dto.getBalance()); //입금액이 첫번째 물음표에 셋팅됨
+			pstmt.setInt(1, dto.getBalance());
 			pstmt.setString(2, dto.getUserid());
-			//4. 실행
+			// 4. 실행
 			int count = pstmt.executeUpdate();
-			//5. 결과처리
-			if(count==1){
-				//정상적으로 처리되면,
-				String sql1 = "select userid,balance from bank where userid=?";
+			// 5. 결과처리
+			if (count == 1) {
+				// 정상적으로 처리되면.
+				String sql1 = "select userid, balance from bank where userid=?";
 				PreparedStatement pstmt1 = con.prepareStatement(sql1);
+
+				// IN Parameter처리
 				pstmt1.setString(1, dto.getUserid());
 				rs = pstmt1.executeQuery();
-				if(rs.next()){
-					dto.setBalance(rs.getInt(2)); //최종 업데이트 된값으로 dto객체의 balance 속성을 바꿔줌 !!
-				}
-				dto.setResult(true);
-//				con.commit();
-				
-				rs.close();
-				pstmt1.close();
-				
-				}else{
-					dto.setResult(false);
 
+				if (rs.next()) {
+					dto.setBalance(rs.getInt("balance"));
 				}
-			//6. 최종적으로 업데이트된 dto 객체를 보내면됨ㅋㅋ
-			
+				dto.setResult(true); // 정상처리되었어라는 징표를 DTO에 저장
+				try {
+					rs.close();
+					pstmt1.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			} else {
+				dto.setResult(false);
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			try {
 				pstmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		}
-		
 		return dto;
 	}
 
-	public BankDTO withdraw(BankDTO dto) {
-
-		//data baseo 처리를 해야 해요!!
-		//일반 JDBC처리 코드가 나오면 되겠죵!
-		
-
+	public BankDTO updateWithdraw(BankDTO dto) {
+		// Database 처리를 해야 해요!!
+		// 일반 JDBC 처리코드가 나오면 되겠죠
 		Connection con = template.getCon();
 		PreparedStatement pstmt = null;
-		ResultSet rs=null;
-		
+		ResultSet rs = null;
+
 		try {
-			
-			
-			String sql = "update bank set balance = balance - ? where userid =? ";
+			String sql = "update bank set balance = balance-? where userid=?";
 			pstmt = con.prepareStatement(sql);
-			pstmt.setInt(1, dto.getBalance()); //입금액이 첫번째 물음표에 셋팅됨
+			pstmt.setInt(1, dto.getBalance());
 			pstmt.setString(2, dto.getUserid());
-			//4. 실행
+			// 4. 실행
 			int count = pstmt.executeUpdate();
-			//5. 결과처리
-			
-			
-			if(count==1){
-				//정상적으로 처리되면,
-				String sql1 = "select userid,balance from bank where userid=?";
+			// 5. 결과처리
+			if (count == 1) {
+				// 정상적으로 처리되면.
+				String sql1 = "select userid, balance from bank where userid=?";
 				PreparedStatement pstmt1 = con.prepareStatement(sql1);
+
+				// IN Parameter처리
 				pstmt1.setString(1, dto.getUserid());
 				rs = pstmt1.executeQuery();
-				if(rs.next()){
-					dto.setBalance(rs.getInt(2)); //최종 업데이트 된값으로 dto객체의 balance 속성을 바꿔줌 !!
-				}
 
-				if(dto.getBalance()<0){
-					System.out.println("예금금액이 작아서 출금 할 수 있어요!");
+				if (rs.next()) {
+					dto.setBalance(rs.getInt("balance"));
+				}
+				if (dto.getBalance() < 0) {
+					System.out.println("잔액이 부족합니다. ");
 					dto.setResult(false);
-				}else{
+				} else {
 					dto.setResult(true);
 				}
-				
-				rs.close();
-				pstmt1.close();
-				
+				try {
+					rs.close();
+					pstmt1.close();
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-			
-			//6. 최종적으로 업데이트된 dto 객체를 보내면됨ㅋㅋ
-			
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-		}finally {
+		} finally {
 			try {
 				pstmt.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
+			} catch (Exception e2) {
+				e2.printStackTrace();
 			}
 		}
-		
 		return dto;
 	}
 

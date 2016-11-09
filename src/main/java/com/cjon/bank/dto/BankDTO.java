@@ -1,16 +1,15 @@
 package com.cjon.bank.dto;
 
 public class BankDTO {
-
+	
 	private String userid;
 	private String accountNum;
 	private int balance;
 	private boolean result;
 	
-	
-	public BankDTO(){
-		
-	}
+
+
+	public BankDTO() {}
 
 	public BankDTO(String userid, String accountNum, int balance) {
 		this.userid = userid;
@@ -50,6 +49,4 @@ public class BankDTO {
 		this.result = result;
 	}
 
-	
-	
 }
